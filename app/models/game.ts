@@ -108,6 +108,9 @@ export class Game {
     };
   }
   private calculateStepsFrom(path: Path) {
+    if (!path || path.length === 0) {
+      return 0;
+    }
     return path.reduce((acc, vector) => acc + vector.weight, 0);
   }
 

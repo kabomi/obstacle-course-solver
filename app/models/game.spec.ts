@@ -20,39 +20,24 @@ describe("Game: Obstacle course solver", () => {
       const game = new Game(board);
       expect(() => game.start()).toThrow(expect.any(Error));
     });
-    it("Should solve the board for a simple case", () => {
-      const board = new Board([[StartCell, EmptyCell], [EmptyCell, EndCell]]);
+    it.each`
+    board                                 | resultSteps    | resultPath
+    ${new Board([[StartCell, EmptyCell ], 
+                [EmptyCell, EndCell]])}   |  ${2}          |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1)]}
+    ${new Board([[StartCell, EmptyCell ], 
+                [BoulderCell, EndCell]])} |  ${2}          |${[new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)]}
+    ${new Board([[StartCell, EndCell ], 
+                [BoulderCell, BoulderCell]])} |  ${1}          |${[new Vector([0, 0], [0, 1], 1)]}
+    ${new Board([[StartCell, BoulderCell ], 
+                [BoulderCell, EndCell]])} |  ${0}          |${undefined}
+    `('should solve Board $board in $resultSteps steps', ({board, resultSteps, resultPath}) => {
       const game = new Game(board);
 
       game.start();
 
       const result = game.getResult();
 
-      expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1)], steps: 2 }));
-    });
-    // [S, ""]
-    // [B, E]
-    it("Should solve the board when there is a Boulder Cell", () => {
-      const board = new Board([[StartCell, EmptyCell ], [BoulderCell, EndCell]]);
-      const game = new Game(board);
-
-      game.start();
-
-      const result = game.getResult();
-
-      expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)], steps: 2 }));
-    });
-    // [S, E]
-    // [B, B]
-    it("Should solve the board when there are two Boulder Cell", () => {
-      const board = new Board([[StartCell, EndCell ], [BoulderCell, BoulderCell]]);
-      const game = new Game(board);
-
-      game.start();
-
-      const result = game.getResult();
-
-      expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [0, 1], 1)], steps: 1 }));
+      expect(result).toEqual(expect.objectContaining({ path: resultPath, steps: resultSteps }));
     });
   });
 });
