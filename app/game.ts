@@ -1,13 +1,17 @@
+import { BoardType } from './models';
+
 export class Game {
-    matrix: string[][];
+  board: BoardType;
 
-    constructor(matrix: string[][]) {
-        this.matrix = matrix;
+  constructor(board: BoardType) {
+      this.board = board;
+  }
+
+  public start() {
+    if (this.board.colLength <= 1 || this.board.colLength <= 1) {
+        throw new Error("Invalid board");
     }
 
-    public start() {
-      if (this.matrix.length <= 1 || this.matrix[0].length <= 1) {
-          throw new Error("Invalid matrix");
-      }
-    }
+    this.board.validate();
+  }
 }
