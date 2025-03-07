@@ -30,6 +30,8 @@ describe("Game: Obstacle course solver", () => {
 
       expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1)], steps: 2 }));
     });
+    // [S, ""]
+    // [B, E]
     it("Should solve the board when there is a Boulder Cell", () => {
       const board = new Board([[StartCell, EmptyCell ], [BoulderCell, EndCell]]);
       const game = new Game(board);
@@ -39,6 +41,18 @@ describe("Game: Obstacle course solver", () => {
       const result = game.getResult();
 
       expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)], steps: 2 }));
+    });
+    // [S, E]
+    // [B, B]
+    it("Should solve the board when there are two Boulder Cell", () => {
+      const board = new Board([[StartCell, EndCell ], [BoulderCell, BoulderCell]]);
+      const game = new Game(board);
+
+      game.start();
+
+      const result = game.getResult();
+
+      expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [0, 1], 1)], steps: 1 }));
     });
   });
 });
