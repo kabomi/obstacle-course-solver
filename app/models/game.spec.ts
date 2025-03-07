@@ -1,8 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-import { Game } from "./game";
-import { Board, EmptyCell, EndCell, StartCell } from ".";
+import { Game, Vector } from "./game";
+import { Board, EmptyCell, EndCell, StartCell, BoulderCell } from ".";
 
 describe("Game: Obstacle course solver", () => {
 
@@ -26,7 +26,19 @@ describe("Game: Obstacle course solver", () => {
 
       game.start();
 
-      expect(game.getResult()).toEqual(expect.objectContaining({ path: [[0, 0], [0, 1], [1, 1]], steps: 2 }));
+      const result = game.getResult();
+
+      expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1)], steps: 2 }));
+    });
+    it("Should solve the board when there is a Boulder Cell", () => {
+      const board = new Board([[StartCell, EmptyCell ], [BoulderCell, EndCell]]);
+      const game = new Game(board);
+
+      game.start();
+
+      const result = game.getResult();
+
+      expect(result).toEqual(expect.objectContaining({ path: [new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)], steps: 2 }));
     });
   });
 });

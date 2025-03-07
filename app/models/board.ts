@@ -1,15 +1,20 @@
+import { Point } from ".";
+
 export interface BoardType {
+  getCellAt(x: number, y: number): Cell | typeof InvalidCell;
   rowLength: number;
   colLength: number;
-  cells: string[][];
+  cells: Cell[][];
   validate(): void;
-  find(cell: string): string[];
+  find(cell: Cell): Point[];
 }
 
 export const EmptyCell = '';
 export const StartCell = 'S';
 export const EndCell = 'E';
-export type Cell = typeof EmptyCell | typeof StartCell | typeof EndCell;
+export const BoulderCell = 'B';
+export const InvalidCell = null;
+export type Cell = typeof EmptyCell | typeof StartCell | typeof EndCell | typeof BoulderCell;
 
 export class Board implements BoardType {
   rowLength: number;
@@ -31,15 +36,22 @@ export class Board implements BoardType {
       throw new Error("Missing end cell");
     }
   }
-  public find(cell: Cell): Cell[] {
-    const result: Cell[] = [];
+  public find(cell: Cell): Point[] {
+    const result: Point[] = [];
     for (let i = 0; i < this.rowLength; i++) {
       for (let j = 0; j < this.colLength; j++) {
         if (this.cells[i][j] === cell) {
-          result.push(this.cells[i][j]);
+          result.push([i, j]);
         }
       }
     }
     return result;
+  }
+
+  public getCellAt(x: number, y: number): Cell | typeof InvalidCell {
+    if (this.cells[x] === undefined || this.cells[x][y] === undefined) {
+      return null;
+    }
+    return this.cells[x][y];
   }
 }
