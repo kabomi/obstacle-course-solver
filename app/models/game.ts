@@ -50,10 +50,6 @@ export class Game {
   }
 
   public getResult(): Result {
-    if (!this.result) {
-      throw new Error("Game has not started");
-    }
-
     const path = this.getShorterPath();
     return {
       path,
@@ -99,13 +95,7 @@ export class Game {
     const startPoint = this.board.find(StartCell)[0];
     const endPoint = this.board.find(EndCell)[0];
 
-    const path = this.findShortestPath(startPoint, endPoint);
-    const steps = this.calculateStepsFrom(path);
-    
-    this.result = {
-      path,
-      steps
-    };
+    this.findShortestPath(startPoint, endPoint);
   }
   private calculateStepsFrom(path: Path) {
     if (!path || path.length === 0) {
@@ -114,57 +104,71 @@ export class Game {
     return path.reduce((acc, vector) => acc + vector.weight, 0);
   }
 
-  private findShortestPath([startX, startY]: Point, [endX, endY]: Point): Path {
-    const shortestPath = [] as Path;
+  private findShortestPath([startX, startY]: Point, [endX, endY]: Point) {
     const pointVisitor =  new PointVisitor([]);
-    if (startX === endX && startY === endY) {
-      return shortestPath;
-    }
-    this.findShortestPathAux([startX, startY], [endX, endY], pointVisitor, shortestPath);
-    return shortestPath;
-  }
-  private findShortestPathAux([startX, startY]: Point, [endX, endY]: Point, pointVisitor: PointVisitor, path: Path) {
-    
-    if (pointVisitor.hasVisited([startX, startY])) {
-      return;
-    }
-    if (startX < 0 || startY < 0 || startX >= this.board.rowLength || startY >= this.board.colLength) {
-      return;
-    }
-    if (startX === endX && startY === endY) {
-      path.push(new Vector(pointVisitor.getLastVisited(), [startX, startY], 1));
-      pointVisitor.visit([startX, startY]);
-      return;
-    }
 
-    if (this.getCellAt([startX, startY]) === StartCell) {
-      pointVisitor.visit([startX, startY]);
-    }
-    if (this.getCellAt([startX, startY]) === EmptyCell) {
-      path.push(new Vector(pointVisitor.getLastVisited(), [startX, startY], 1));
-      pointVisitor.visit([startX, startY]);
-    }
-    if (this.getCellAt([startX, startY]) === BoulderCell) {
-      pointVisitor.visit([startX, startY]);
-      return;
-    }
+    const queue: [Point, Path, PointVisitor][] = [[[startX, startY], [], pointVisitor]];
 
-    const neighbors = [[startX -1, startY], [startX +1, startY], [startX, startY -1], [startX, startY +1]] as Point[];
-
-    for (const neighbor of neighbors) {
-      const [neighborX, neighborY] = neighbor;
-      if (neighborX < 0 || neighborY < 0 || neighborX >= this.board.rowLength || neighborY >= this.board.colLength) {
+    while(queue.length > 0) {
+      const [currentPoint, currentPath, currentPointVisitor] = queue.shift() as [Point, Path, PointVisitor];
+      const [currentX, currentY] = currentPoint;
+      
+      // If already visited, skip this point
+      if (currentPointVisitor.hasVisited(currentPoint)) {
         continue;
       }
 
-      if (!pointVisitor.hasVisited(neighbor)) {
-        const newPointVisitor = new PointVisitor(pointVisitor.points);
-        const newPath = [...path];
-        this.findShortestPathAux(neighbor, [endX, endY], newPointVisitor, newPath);
-        if (newPointVisitor.hasVisited([endX, endY]) && !pointVisitor.hasVisited([endX, endY])) {
+      // If out of bounds, skip this point
+      if (currentX < 0 || currentY < 0 || currentX >= this.board.rowLength || currentY >= this.board.colLength) {
+        continue;
+      }
+
+      const currentCell = this.getCellAt(currentPoint);
+
+      // If the current cell is the end cell, add the path to the list of paths
+      if (currentCell === EndCell) {
+        currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, 1));
+        this.paths.push(currentPath);
+        currentPointVisitor.visit(currentPoint);
+        continue;
+      }
+
+      // Mark the current point as visited based on the Cell type
+      if (currentCell === StartCell) {
+        currentPointVisitor.visit(currentPoint);
+      }
+      // When an empty cell is found, add it to the path
+      if (currentCell === EmptyCell) {
+        currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, 1));
+        currentPointVisitor.visit(currentPoint);
+      }
+      // When a boulder cell is found, mark it as visited and skip this point
+      if (currentCell === BoulderCell) {
+        currentPointVisitor.visit(currentPoint);
+        continue;
+      }
+      
+
+      const neighbors = [[currentX -1, currentY], [currentX +1, currentY], [currentX, currentY -1], [currentX, currentY +1]] as Point[];
+
+      for (const neighbor of neighbors) {
+        const [neighborX, neighborY] = neighbor;
+        if (neighborX < 0 || neighborY < 0 || neighborX >= this.board.rowLength || neighborY >= this.board.colLength) {
+          continue;
+        }
+        if (currentPointVisitor.hasVisited(neighbor)) {
+          continue;
+        }
+        
+        const newPointVisitor = new PointVisitor(currentPointVisitor.points);
+        const newPath = [...currentPath];
+        
+        if (newPointVisitor.hasVisited([endX, endY]) && !currentPointVisitor.hasVisited([endX, endY])) {
           this.paths.push(newPath);
-          pointVisitor.visit(neighbor);
-          return;
+          currentPointVisitor.visit(neighbor);
+          continue;
+        } else {
+          queue.push([neighbor, newPath, newPointVisitor]);
         }
       }
     }

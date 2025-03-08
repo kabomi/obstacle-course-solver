@@ -21,16 +21,16 @@ describe("Game: Obstacle course solver", () => {
       expect(() => game.start()).toThrow(expect.any(Error));
     });
     it.each`
-    board                                 | resultSteps    | resultPath
+    board                                 | resultSteps    |  testDescription | resultPath
     ${new Board([[StartCell, EmptyCell ], 
-                [EmptyCell, EndCell]])}   |  ${2}          |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1)]}
+                [EmptyCell, EndCell]])}   |  ${2}          | ${`for the simplest case`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1)]}
     ${new Board([[StartCell, EmptyCell ], 
-                [BoulderCell, EndCell]])} |  ${2}          |${[new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)]}
+                [BoulderCell, EndCell]])} |  ${2}          | ${`with a Boulder cell`} |${[new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)]}
     ${new Board([[StartCell, EndCell ], 
-                [BoulderCell, BoulderCell]])} |  ${1}          |${[new Vector([0, 0], [0, 1], 1)]}
+                [BoulderCell, BoulderCell]])} |  ${1}      | ${`with two Boulder cells`} |${[new Vector([0, 0], [0, 1], 1)]}
     ${new Board([[StartCell, BoulderCell ], 
-                [BoulderCell, EndCell]])} |  ${0}          |${undefined}
-    `('should solve Board $board in $resultSteps steps', ({board, resultSteps, resultPath}) => {
+                [BoulderCell, EndCell]])} |  ${0}          | ${`that its not solvable`} |${undefined}
+    `('should solve Board $testDescription in $resultSteps steps', ({board, resultSteps, resultPath}) => {
       const game = new Game(board);
 
       game.start();
