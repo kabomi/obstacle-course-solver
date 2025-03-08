@@ -148,49 +148,24 @@ export class Game {
       pointVisitor.visit([startX, startY]);
       return;
     }
-    const leftPoint = [startX -1, startY] as Point, rightPoint = [startX +1, startY] as Point, downPoint = [startX, startY -1] as Point, upPoint = [startX, startY +1] as Point;
-    if (!pointVisitor.hasVisited(leftPoint)) {
-      const newPointVisitor = new PointVisitor(pointVisitor.points);
-      const newPath = [...path];
-      this.findShortestPathAux(leftPoint, [endX, endY], newPointVisitor, newPath);
-      if (newPointVisitor.hasVisited([endX, endY]) && !pointVisitor.hasVisited([endX, endY])) {
-        //path.push(newPath[newPath.length - 1]);
-        this.paths.push(newPath);
-        pointVisitor.visit(leftPoint);
-        return;
+
+    const neighbors = [[startX -1, startY], [startX +1, startY], [startX, startY -1], [startX, startY +1]] as Point[];
+
+    for (const neighbor of neighbors) {
+      const [neighborX, neighborY] = neighbor;
+      if (neighborX < 0 || neighborY < 0 || neighborX >= this.board.rowLength || neighborY >= this.board.colLength) {
+        continue;
       }
-    }
-    if (!pointVisitor.hasVisited(rightPoint)) {
-      const newPointVisitor = new PointVisitor(pointVisitor.points);
-      const newPath = [...path];
-      this.findShortestPathAux(rightPoint, [endX, endY], newPointVisitor, newPath);
-      if (newPointVisitor.hasVisited([endX, endY]) && !pointVisitor.hasVisited([endX, endY])) {
-        //path.push(newPath[newPath.length - 1]);
-        this.paths.push(newPath);
-        pointVisitor.visit(rightPoint);
-        return;
-      }
-    }
-    if (!pointVisitor.hasVisited(downPoint)) {
-      const newPointVisitor = new PointVisitor(pointVisitor.points);
-      const newPath = [...path];
-      this.findShortestPathAux(downPoint, [endX, endY], newPointVisitor, newPath);
-      if (newPointVisitor.hasVisited([endX, endY]) && !pointVisitor.hasVisited([endX, endY])) {
-        //path.push(newPath[newPath.length - 1]);
-        this.paths.push(newPath);
-        pointVisitor.visit(downPoint);
-        return;
-      }
-    }
-    if (!pointVisitor.hasVisited(upPoint)) {
-      const newPointVisitor = new PointVisitor(pointVisitor.points);
-      const newPath = [...path];
-      this.findShortestPathAux(upPoint, [endX, endY], newPointVisitor, newPath);
-      if (newPointVisitor.hasVisited([endX, endY]) && !pointVisitor.hasVisited([endX, endY])) {
-        //path.push(newPath[newPath.length - 1]);
-        this.paths.push(newPath);
-        pointVisitor.visit(upPoint);
-        return;
+
+      if (!pointVisitor.hasVisited(neighbor)) {
+        const newPointVisitor = new PointVisitor(pointVisitor.points);
+        const newPath = [...path];
+        this.findShortestPathAux(neighbor, [endX, endY], newPointVisitor, newPath);
+        if (newPointVisitor.hasVisited([endX, endY]) && !pointVisitor.hasVisited([endX, endY])) {
+          this.paths.push(newPath);
+          pointVisitor.visit(neighbor);
+          return;
+        }
       }
     }
   }
