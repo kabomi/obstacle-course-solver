@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "../page.css";
 import { GamePhase } from "../models";
 import Board from "../components/board";
@@ -8,6 +8,7 @@ import Board from "../components/board";
 export default function GamePage() {
   const [matrixSize, setMatrixSize] = useState(2);
   const [phase, setPhase] = useState<GamePhase>(GamePhase.SelectMatrix);
+  const [disableNext, setDisableNext] = useState(false);
 
   const getHeaderText = useCallback(() => {
     switch (phase) {
@@ -23,6 +24,12 @@ export default function GamePage() {
         return "Play";
       default:
         return "";
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === GamePhase.PlaceStart) {
+      setDisableNext(true);
     }
   }, [phase]);
 
@@ -47,12 +54,13 @@ export default function GamePage() {
             </p>
           )}
           {phase === GamePhase.PlaceStart && (
-            <div data-testid="board" className="flex flex-col">
-              <Board matrixSize={matrixSize} phase={phase} />
+            <div data-testid="game-board" className="flex flex-col">
+              <Board matrixSize={matrixSize} phase={phase} onCellClick={() => setDisableNext(false)} />
             </div>
           )}
           <p className="flex self-center">
-            <button onClick={() => setPhase((currentPhase) => currentPhase + 1) }>
+            <button disabled={disableNext}
+              onClick={() => setPhase((currentPhase) => currentPhase + 1) }>
               Next
             </button>
           </p>

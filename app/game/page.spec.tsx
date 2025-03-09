@@ -43,12 +43,22 @@ describe("Game Page", () => {
     expect(screen.getByTestId("title")).toHaveTextContent("Place Start");
     expect(screen.queryByTestId("matrix-range")).not.toBeInTheDocument();
   });
-  it("On place start phase shows a Board Game component", () => {
-    render(<GamePage />);
-    expect(screen.getByRole("button")).toHaveTextContent("Next");
+  describe("On place start phase", () => {
+    it("Shows a Board Game component", () => {
+      render(<GamePage />);
+      expect(screen.getByRole("button")).toHaveTextContent("Next");
 
-    fireEvent.click(screen.getByRole("button"));
+      fireEvent.click(screen.getByRole("button"));
 
-    expect(screen.getByTestId("board")).toBeInTheDocument();
+      expect(screen.getByTestId("game-board")).toBeInTheDocument();
+    });
+    it("disables next action", () => {
+      render(<GamePage />);
+      expect(screen.getByRole("button")).toHaveTextContent("Next");
+
+      fireEvent.click(screen.getByRole("button"));
+
+      expect(screen.getByRole("button")).toBeDisabled();
+    });
   });
 });
