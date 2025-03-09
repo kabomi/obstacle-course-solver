@@ -7,7 +7,7 @@ import { useGameStore } from '@/app/providers/game.store-provider'
 
 export default function GamePage() {
   const { phase, nextPhase, boardSize, setBoardSize,
-    placementBoard, placeStart, placeEnd, startPoint
+    placementBoard, place, startPoint
    } = useGameStore(
     (state) => state,
   );
@@ -31,16 +31,14 @@ export default function GamePage() {
   }, [phase]);
 
   const onCellClick = useCallback((point: Point) => {
-    if (phase === GamePhase.PlaceStart) {
-      placeStart(point);
-    } else {
+    if (phase === GamePhase.PlaceEnd) {
       if (startPoint && point[0] === startPoint[0] && point[1] === startPoint[1]) {
         return;
       }
-      placeEnd(point);
     }
+    place(point);
     setDisableNext(false);
-  }, [placeStart, phase, placeEnd, startPoint]);
+  }, [place, phase, startPoint]);
 
   useEffect(() => {
     if (phase === GamePhase.PlaceStart || phase === GamePhase.PlaceEnd) {

@@ -14,8 +14,7 @@ export type GameState = {
 export type GameActions = {
   nextPhase: () => void,
   setBoardSize: (size: number) => void,
-  placeStart: (point: Point) => void,
-  placeEnd: (point: Point) => void
+  place: (point: Point) => void,
 }
 
 export type GameStore = GameState & GameActions
@@ -45,23 +44,24 @@ export const createGameStore = (
       state.phase += 1;
       return { ...state };
     }),
-    placeStart: ([x, y]) => set((state) => {
-      if (state.phase !== GamePhase.PlaceStart) return state;
-      const placementBoard = Board.generateEmptyBoard(state.boardSize);
-      if (!placementBoard) return state;
-      placementBoard[x][y] = StartCell;
-      return { ...state, placementBoard, startPoint: [x, y] };
-    }),
-    placeEnd: ([x, y]) => set((state) => {
-      if (state.phase !== GamePhase.PlaceEnd || !state.placementBoard) return state;
+    place: ([x, y]: Point) => set((state) => {
+      if (state.phase !== GamePhase.PlaceStart && state.phase !== GamePhase.PlaceEnd || !state.placementBoard) return state;
       const previousBoard = new Board(state.placementBoard);
       const placementBoard = new Board(Board.generateEmptyBoard(state.boardSize));
+      if (!placementBoard) return state;
+      switch (state.phase) {
+        case GamePhase.PlaceStart:
+          placementBoard.setCellAt([x, y], StartCell);
+          state.startPoint = [x, y];
+          break;
+        case GamePhase.PlaceEnd:
+          if (previousBoard.getCellAt(x, y) === StartCell) return state;
+          const [startX, startY] = previousBoard.find(StartCell)[0];
+          placementBoard.setCellAt([startX, startY], StartCell);
+          placementBoard.setCellAt([x, y], EndCell);
 
-      if (previousBoard.getCellAt(x, y) === StartCell) return state;
-
-      const [startX, startY] = previousBoard.find(StartCell)[0];
-      placementBoard.setCellAt([startX, startY], StartCell);
-      placementBoard.setCellAt([x, y], EndCell);
+          break;
+      }
       return { ...state, placementBoard: placementBoard.cells };
     }),
     setBoardSize: (size) => set((state) => ({ ...state, boardSize: size }))

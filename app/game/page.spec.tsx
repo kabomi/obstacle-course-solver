@@ -157,7 +157,7 @@ describe("Game Page", () => {
       expect(screen.getByRole("button")).toBeDisabled();
     });
 
-    it.only("disable next action if clicked on StartCell", () => {
+    it("disable next action if clicked on StartCell", () => {
       const placementBoard = Board.generateEmptyBoard(2);
       placementBoard[0][0] = StartCell;
       store.setState({ ...store.getState(), startPoint: [0, 0], placementBoard, phase: GamePhase.PlaceEnd})

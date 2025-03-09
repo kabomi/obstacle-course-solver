@@ -46,55 +46,56 @@ describe('Game Store', () => {
 
       expect(store.getState().boardSize).toBe(3);
     });
-    it('adds StartCell on placeStart if phase is PlaceStart', () => {
+    it('adds StartCell on place if phase is PlaceStart', () => {
       const state = initGameStore();
       state.phase = GamePhase.PlaceStart;
+      state.placementBoard = Board.generateEmptyBoard(2);
       const store = createGameStore(state);
 
-      store.getState().placeStart([0, 1]);
+      store.getState().place([0, 1]);
 
       const board = new Board(store.getState().placementBoard!);
       expect(board.getCellAt(0, 1)).toBe(StartCell);
       expect(store.getState().startPoint).toEqual([0, 1]);
     });
-    it('does not add StartCell on placeStart if phase is PlaceEnd', () => {
+    it('does not add StartCell on place if phase is PlaceEnd', () => {
       const state = initGameStore();
       state.phase = GamePhase.PlaceEnd;
       const store = createGameStore(state);
 
-      store.getState().placeStart([0, 1]);
+      store.getState().place([0, 1]);
 
       expect(store.getState().placementBoard).toBeUndefined();
     });
-    it('adds EndCell on placeEnd if phase is PlaceEnd', () => {
+    it('adds EndCell on place if phase is PlaceEnd', () => {
       const state = initGameStore();
       state.placementBoard = Board.generateEmptyBoard(2);
       state.placementBoard[0][0] = StartCell;
       state.phase = GamePhase.PlaceEnd;
       const store = createGameStore(state);
 
-      store.getState().placeEnd([0, 1]);
+      store.getState().place([0, 1]);
 
       const board = new Board(store.getState().placementBoard!);
       expect(board.getCellAt(0, 1)).toBe(EndCell);
     });
-    it('does not add EndCell on placeEnd if phase is PlaceStart', () => {
+    it('does not add EndCell on place if phase is PlaceStart', () => {
       const state = initGameStore();
       state.phase = GamePhase.PlaceStart;
       const store = createGameStore(state);
 
-      store.getState().placeEnd([0, 1]);
+      store.getState().place([0, 1]);
 
       expect(store.getState().placementBoard).toBeUndefined();
     });
-    it('does not add EndCell on placeEnd if point coincides with StartCell', () => {
+    it('does not add EndCell on place if point coincides with StartCell', () => {
       const state = initGameStore();
       state.placementBoard = Board.generateEmptyBoard(2);
       state.placementBoard[0][1] = StartCell;
       state.phase = GamePhase.PlaceEnd;
       const store = createGameStore(state);
 
-      store.getState().placeEnd([0, 1]);
+      store.getState().place([0, 1]);
 
       const board = new Board(store.getState().placementBoard!);
       expect(board.getCellAt(0, 1)).toBe(StartCell);
