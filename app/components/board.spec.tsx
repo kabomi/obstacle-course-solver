@@ -3,11 +3,15 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import Board from "./board";
-import { GamePhase } from "../models";
+import { Cell, EmptyCell } from "../models";
 
 describe("Board Component", () => {
+  const cells: Cell[][] = [
+    [EmptyCell, EmptyCell],
+    [EmptyCell, EmptyCell],
+  ];
   it("Renders Board", () => {
-    render(<Board matrixSize={2} phase={GamePhase.PlaceStart } onCellClick={jest.fn()} />);
+    render(<Board cells={cells} onCellClick={jest.fn()} />);
     expect(screen.getByTestId("board")).toBeInTheDocument();
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 2; j++) {
@@ -17,7 +21,7 @@ describe("Board Component", () => {
   });
   it("calls onCellClick when clicking on a cell", () => {
     const onCellClick = jest.fn();
-    render(<Board matrixSize={2} phase={GamePhase.PlaceStart } onCellClick={onCellClick} />);
+    render(<Board cells={cells} onCellClick={onCellClick} />);
 
     fireEvent.click(screen.getByTestId("cell-0-0"));
 

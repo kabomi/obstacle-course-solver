@@ -1,4 +1,4 @@
-import { Board, EmptyCell, GamePhase, StartCell } from "../models";
+import { Board, GamePhase, StartCell } from "../models";
 import { createGameStore, initGameStore } from "./game.store";
 
 describe('Game Store', () => {

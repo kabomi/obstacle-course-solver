@@ -30,6 +30,11 @@ export default function GamePage() {
     }
   }, [phase]);
 
+  const onCellClick = useCallback((point: Point) => {
+    placeStart(point);
+    setDisableNext(false);
+  }, [placeStart]);
+
   useEffect(() => {
     if (phase === GamePhase.PlaceStart) {
       setDisableNext(true);
@@ -56,9 +61,9 @@ export default function GamePage() {
               <label className="flex pl-2" htmlFor="matrix-range">{boardSize}</label>
             </p>
           )}
-          {phase === GamePhase.PlaceStart && (
+          {phase === GamePhase.PlaceStart && placementBoard && (
             <div data-testid="game-board" className="flex flex-col">
-              <Board matrixSize={boardSize} phase={phase} onCellClick={() => setDisableNext(false)} />
+              <Board cells={placementBoard} onCellClick={onCellClick} />
             </div>
           )}
           <p className="flex self-center">
