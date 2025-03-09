@@ -1,4 +1,4 @@
-import { Board, GamePhase, StartCell } from "../models";
+import { Board, EndCell, GamePhase, StartCell } from "../models";
 import { createGameStore, initGameStore } from "./game.store";
 
 describe('Game Store', () => {
@@ -55,6 +55,7 @@ describe('Game Store', () => {
 
       const board = new Board(store.getState().placementBoard!);
       expect(board.getCellAt(0, 1)).toBe(StartCell);
+      expect(store.getState().startPoint).toEqual([0, 1]);
     });
     it('does not add StartCell on placeStart if phase is PlaceEnd', () => {
       const state = initGameStore();
@@ -64,6 +65,39 @@ describe('Game Store', () => {
       store.getState().placeStart([0, 1]);
 
       expect(store.getState().placementBoard).toBeUndefined();
+    });
+    it('adds EndCell on placeEnd if phase is PlaceEnd', () => {
+      const state = initGameStore();
+      state.placementBoard = Board.generateEmptyBoard(2);
+      state.placementBoard[0][0] = StartCell;
+      state.phase = GamePhase.PlaceEnd;
+      const store = createGameStore(state);
+
+      store.getState().placeEnd([0, 1]);
+
+      const board = new Board(store.getState().placementBoard!);
+      expect(board.getCellAt(0, 1)).toBe(EndCell);
+    });
+    it('does not add EndCell on placeEnd if phase is PlaceStart', () => {
+      const state = initGameStore();
+      state.phase = GamePhase.PlaceStart;
+      const store = createGameStore(state);
+
+      store.getState().placeEnd([0, 1]);
+
+      expect(store.getState().placementBoard).toBeUndefined();
+    });
+    it('does not add EndCell on placeEnd if point coincides with StartCell', () => {
+      const state = initGameStore();
+      state.placementBoard = Board.generateEmptyBoard(2);
+      state.placementBoard[0][1] = StartCell;
+      state.phase = GamePhase.PlaceEnd;
+      const store = createGameStore(state);
+
+      store.getState().placeEnd([0, 1]);
+
+      const board = new Board(store.getState().placementBoard!);
+      expect(board.getCellAt(0, 1)).toBe(StartCell);
     });
   });
 });

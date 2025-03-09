@@ -7,7 +7,7 @@ import { useGameStore } from '@/app/providers/game.store-provider'
 
 export default function GamePage() {
   const { phase, nextPhase, boardSize, setBoardSize,
-    placementBoard, placeStart
+    placementBoard, placeStart, placeEnd, startPoint
    } = useGameStore(
     (state) => state,
   );
@@ -31,12 +31,19 @@ export default function GamePage() {
   }, [phase]);
 
   const onCellClick = useCallback((point: Point) => {
-    placeStart(point);
+    if (phase === GamePhase.PlaceStart) {
+      placeStart(point);
+    } else {
+      if (startPoint && point[0] === startPoint[0] && point[1] === startPoint[1]) {
+        return;
+      }
+      placeEnd(point);
+    }
     setDisableNext(false);
-  }, [placeStart]);
+  }, [placeStart, phase, placeEnd, startPoint]);
 
   useEffect(() => {
-    if (phase === GamePhase.PlaceStart) {
+    if (phase === GamePhase.PlaceStart || phase === GamePhase.PlaceEnd) {
       setDisableNext(true);
     }
   }, [phase]);
@@ -61,7 +68,7 @@ export default function GamePage() {
               <label className="flex pl-2" htmlFor="matrix-range">{boardSize}</label>
             </p>
           )}
-          {phase === GamePhase.PlaceStart && placementBoard && (
+          {phase >= GamePhase.PlaceStart && placementBoard && (
             <div data-testid="game-board" className="flex flex-col">
               <Board cells={placementBoard} onCellClick={onCellClick} />
             </div>
