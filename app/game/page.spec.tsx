@@ -3,7 +3,7 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation"
-import Page from "./page";
+import GamePage from "./page";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock("next/navigation", () => ({
 
 const mockUseRouter = useRouter as jest.Mock;
 
-describe("Home Page", () => {
+describe("Game Page", () => {
   const mockPush = jest.fn(() => Promise.resolve(true));
    
   beforeAll(() => {
@@ -22,18 +22,18 @@ describe("Home Page", () => {
       prefetch: () => Promise.resolve(true)
     });
   });
-  it("Renders Home Page", () => {
-    render(<Page />);
-    expect(screen.getByRole("heading")).toHaveTextContent("Obstacle Course Solver");
+  it("Renders Game Page", () => {
+    render(<GamePage />);
+    expect(screen.getByRole("heading")).toHaveTextContent("Select Matrix Size");
   });
-  it("Shows a start button if the game is not started", () => {
-    render(<Page />);
-    expect(screen.getByRole("button")).toHaveTextContent("Start");
+  it("Shows a next button", () => {
+    render(<GamePage />);
+    expect(screen.getByRole("button")).toHaveTextContent("Next");
   });
-  it("Navigates to game page when the game is started", () => {
-    render(<Page />);
-    expect(screen.getByRole("button")).toHaveTextContent("Start");
+  it("Navigates to placement phase after pressing next", () => {
+    render(<GamePage />);
+    expect(screen.getByRole("button")).toHaveTextContent("Next");
     fireEvent.click(screen.getByRole("button"));
-    expect(mockPush).toHaveBeenCalledWith("/game")
+    expect(mockPush).toHaveBeenCalledWith("/game/placement")
   });
 });
