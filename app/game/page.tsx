@@ -3,11 +3,12 @@ import { useCallback, useEffect, useState } from "react";
 import "../page.css";
 import { GamePhase } from "../models";
 import Board from "../components/board";
-
+import { useGameStore } from '@/app/providers/game.store-provider'
 
 export default function GamePage() {
-  const [matrixSize, setMatrixSize] = useState(2);
-  const [phase, setPhase] = useState<GamePhase>(GamePhase.SelectMatrix);
+  const { phase, nextPhase, boardSize, setBoardSize } = useGameStore(
+    (state) => state,
+  );
   const [disableNext, setDisableNext] = useState(false);
 
   const getHeaderText = useCallback(() => {
@@ -47,20 +48,20 @@ export default function GamePage() {
                 className="flex"
                 min="2"
                 max="5"
-                value={matrixSize}
-                onChange={(e) => setMatrixSize(parseInt(e.target.value))}
+                value={boardSize}
+                onChange={(e) => setBoardSize(parseInt(e.target.value))}
                 step="1" />
-              <label className="flex pl-2" htmlFor="matrix-range">{matrixSize}</label>
+              <label className="flex pl-2" htmlFor="matrix-range">{boardSize}</label>
             </p>
           )}
           {phase === GamePhase.PlaceStart && (
             <div data-testid="game-board" className="flex flex-col">
-              <Board matrixSize={matrixSize} phase={phase} onCellClick={() => setDisableNext(false)} />
+              <Board matrixSize={boardSize} phase={phase} onCellClick={() => setDisableNext(false)} />
             </div>
           )}
           <p className="flex self-center">
             <button disabled={disableNext}
-              onClick={() => setPhase((currentPhase) => currentPhase + 1) }>
+              onClick={() => nextPhase() }>
               Next
             </button>
           </p>

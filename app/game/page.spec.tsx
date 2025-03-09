@@ -2,8 +2,9 @@
  * @jest-environment jsdom
  */
 import { fireEvent, render, screen } from "@testing-library/react";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 import GamePage from "./page";
+import { GameStoreProvider } from "../providers/game.store-provider";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
@@ -22,20 +23,23 @@ describe("Game Page", () => {
       prefetch: () => Promise.resolve(true)
     });
   });
+  beforeEach(() => {
+    render(
+    <GameStoreProvider>
+      <GamePage />
+    </GameStoreProvider>
+    );
+  });
   it("Renders Game Page", () => {
-    render(<GamePage />);
     expect(screen.getByTestId("title")).toHaveTextContent("Select Matrix Size");
   });
   it("Shows a next button", () => {
-    render(<GamePage />);
     expect(screen.getByRole("button")).toHaveTextContent("Next");
   });
   it("Shows matrix size slider", () => {
-    render(<GamePage />);
     expect(screen.getByTestId("matrix-range")).toBeInTheDocument();
   });
   it("Shows place start phase after pressing next", () => {
-    render(<GamePage />);
     expect(screen.getByRole("button")).toHaveTextContent("Next");
 
     fireEvent.click(screen.getByRole("button"));
@@ -45,7 +49,6 @@ describe("Game Page", () => {
   });
   describe("On place start phase", () => {
     it("Shows a Board Game component", () => {
-      render(<GamePage />);
       expect(screen.getByRole("button")).toHaveTextContent("Next");
 
       fireEvent.click(screen.getByRole("button"));
@@ -53,7 +56,6 @@ describe("Game Page", () => {
       expect(screen.getByTestId("game-board")).toBeInTheDocument();
     });
     it("disables next action", () => {
-      render(<GamePage />);
       expect(screen.getByRole("button")).toHaveTextContent("Next");
 
       fireEvent.click(screen.getByRole("button"));
