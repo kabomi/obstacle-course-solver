@@ -1,14 +1,8 @@
 "use client";
 import { useCallback, useState } from "react";
 import "../page.css";
-
-enum GamePhase {
-  SelectMatrix = 0,
-  PlaceStart = 1,
-  PlaceEnd = 2,
-  PlaceObstacles = 3,
-  Play = 4,
-}
+import { GamePhase } from "../models";
+import Board from "../components/board";
 
 
 export default function GamePage() {
@@ -54,7 +48,7 @@ export default function GamePage() {
           )}
           {phase === GamePhase.PlaceStart && (
             <div data-testid="board" className="flex flex-col">
-              <h2>Board</h2>
+              <Board matrixSize={matrixSize} phase={phase} />
             </div>
           )}
           <p className="flex self-center">

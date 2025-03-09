@@ -27,3 +27,16 @@ button:active {
 button:focus {
   outline: none;
 }
+button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+button:disabled:hover {
+  background-color: #6c757d;
+}
+button:disabled:active {
+  background-color: #6c757d;
+}
+button:disabled:focus {
+  outline: none;
+}
