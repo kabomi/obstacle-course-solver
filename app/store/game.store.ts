@@ -1,6 +1,6 @@
 import { createStore } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { Board, Cell, EndCell, Game, GamePhase, Point, StartCell } from '../models'
+import { Board, BoulderCell, Cell, EmptyCell, EndCell, Game, GamePhase, InvalidCell, Point, StartCell } from '../models'
 
 export type GameState = {
   model: Game | undefined
@@ -45,9 +45,9 @@ export const createGameStore = (
       return { ...state };
     }),
     place: ([x, y]: Point) => set((state) => {
-      if (state.phase !== GamePhase.PlaceStart && state.phase !== GamePhase.PlaceEnd || !state.placementBoard) return state;
+      if (!state.placementBoard) return state;
       const previousBoard = new Board(state.placementBoard);
-      const placementBoard = new Board(Board.generateEmptyBoard(state.boardSize));
+      let placementBoard = new Board(Board.generateEmptyBoard(state.boardSize));
       if (!placementBoard) return state;
       switch (state.phase) {
         case GamePhase.PlaceStart:
@@ -59,11 +59,33 @@ export const createGameStore = (
           const [startX, startY] = previousBoard.find(StartCell)[0];
           placementBoard.setCellAt([startX, startY], StartCell);
           placementBoard.setCellAt([x, y], EndCell);
+          break;
+        case GamePhase.PlaceObstacles:
+          const previousCell = previousBoard.getCellAt(x, y);
+          if (previousCell === StartCell ||
+            previousCell === EndCell || 
+            previousCell === InvalidCell
+          ) { return state; }
 
+          placementBoard = previousBoard;
+          placementBoard.setCellAt([x, y], nextObstacle(previousCell));
+          break;
+        default:
           break;
       }
       return { ...state, placementBoard: placementBoard.cells };
     }),
     setBoardSize: (size) => set((state) => ({ ...state, boardSize: size }))
   })))
+}
+
+function nextObstacle(cell: Cell): Cell {
+  switch (cell) {
+    case EmptyCell:
+      return BoulderCell;
+    case BoulderCell:
+      return EmptyCell;
+    default:
+      return EmptyCell;
+  }
 }

@@ -100,5 +100,29 @@ describe('Game Store', () => {
       const board = new Board(store.getState().placementBoard!);
       expect(board.getCellAt(0, 1)).toBe(StartCell);
     });
+    describe('On place obstacles phase', () => {
+      it('does not place on start point', () => {
+        const state = initGameStore();
+        state.phase = GamePhase.PlaceObstacles;
+        state.placementBoard = Board.generateEmptyBoard(2);
+        state.placementBoard[0][1] = StartCell;
+        const store = createGameStore(state);
+
+        store.getState().place([0, 1]);
+
+        expect(store.getState().placementBoard![0][1]).toBe(StartCell);
+      });
+      it('does not add EndCell on end point', () => {
+        const state = initGameStore();
+        state.phase = GamePhase.PlaceObstacles;
+        state.placementBoard = Board.generateEmptyBoard(2);
+        state.placementBoard[0][1] = EndCell;
+        const store = createGameStore(state);
+
+        store.getState().place([0, 1]);
+
+        expect(store.getState().placementBoard![0][1]).toBe(EndCell);
+      });
+    });
   });
 });
