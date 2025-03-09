@@ -29,7 +29,7 @@ describe("Game: Obstacle course solver", () => {
     ${new Board([[StartCell, EndCell ], 
                 [BoulderCell, BoulderCell]])} |  ${1}      | ${`with two Boulder cells`} |${[new Vector([0, 0], [0, 1], 1)]}
     ${new Board([[StartCell, BoulderCell ], 
-                [BoulderCell, EndCell]])} |  ${0}          | ${`that its not solvable`} |${undefined}
+                [BoulderCell, EndCell]])} |  ${0}          | ${`that it's not solvable`} |${undefined}
     `('should solve Board $testDescription in $resultSteps steps', ({board, resultSteps, resultPath}) => {
       const game = new Game(board);
 

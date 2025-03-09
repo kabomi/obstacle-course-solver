@@ -1,0 +1,24 @@
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+.startButton {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.startButton:hover {
+  background-color: #0056b3;
+}
+.startButton:active {
+  background-color: #004b9a;
+}
+.startButton:focus {
+  outline: none;
+}
