@@ -1,12 +1,14 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import "../page.css";
-import { GamePhase } from "../models";
+import { GamePhase, Point } from "../models";
 import Board from "../components/board";
 import { useGameStore } from '@/app/providers/game.store-provider'
 
 export default function GamePage() {
-  const { phase, nextPhase, boardSize, setBoardSize } = useGameStore(
+  const { phase, nextPhase, boardSize, setBoardSize,
+    placementBoard, placeStart
+   } = useGameStore(
     (state) => state,
   );
   const [disableNext, setDisableNext] = useState(false);

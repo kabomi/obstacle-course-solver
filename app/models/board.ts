@@ -50,8 +50,27 @@ export class Board implements BoardType {
 
   public getCellAt(x: number, y: number): Cell | typeof InvalidCell {
     if (this.cells[x] === undefined || this.cells[x][y] === undefined) {
-      return null;
+      return InvalidCell;
     }
     return this.cells[x][y];
+  }
+
+  public setCellAt([x, y]: Point, cell: Cell): Cell | typeof InvalidCell {
+    if (this.cells[x] === undefined || this.cells[x][y] === undefined) {
+      return InvalidCell;
+    }
+    this.cells[x][y] = cell;
+    return this.cells[x][y];
+  }
+
+  public static generateEmptyBoard(matrixSize: number): Cell[][] {
+    const matrix: Cell[][] = [];
+    for (let i = 0; i < matrixSize; i++) {
+      matrix.push([]);
+      for (let j = 0; j < matrixSize; j++) {
+        matrix[i].push(EmptyCell);
+      }
+    }
+    return matrix;
   }
 }
