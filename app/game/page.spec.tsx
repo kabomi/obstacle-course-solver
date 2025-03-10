@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import GamePage from "./page";
 import { GameStoreContext, GameStoreProvider } from "../providers/game.store-provider";
 import { createGameStore } from "../store/game.store";
-import { Board, BoulderCell, Cell, EmptyCell, EndCell, GamePhase, GravelCell, StartCell, WormSCell } from "../models";
+import { Board, BoulderCell, Cell, EmptyCell, EndCell, GamePhase, GravelCell, StartCell, WormECell, WormSCell } from "../models";
 
 jest.mock('../components/board');
 
@@ -233,8 +233,23 @@ describe("Game Page", () => {
       expect(state.placementBoard![1][1]).toBe(EndCell);
       expect(state.placementBoard![0][0]).toBe(WormSCell);
     });
-    it("places an EmptyCell when clicking on a WormSCell", () => {
+    it("places an WormECell when clicking on a WormSCell", () => {
       store.setState({ ...store.getState(), placementBoard: [[WormSCell, StartCell], [EmptyCell, EndCell]]})
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+
+      fireEvent.click(screen.getByTestId("cell-0-0"));
+
+      const state = store.getState();
+      expect(state.placementBoard![0][1]).toBe(StartCell);
+      expect(state.placementBoard![1][1]).toBe(EndCell);
+      expect(state.placementBoard![0][0]).toBe(WormECell);
+    });
+    it("places an EmptyCell when clicking on a WormECell", () => {
+      store.setState({ ...store.getState(), placementBoard: [[WormECell, StartCell], [EmptyCell, EndCell]]})
       render(
         <GameStoreContext.Provider value={store}>
           <GamePage />

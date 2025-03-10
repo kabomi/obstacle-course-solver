@@ -1,4 +1,4 @@
-import { BoardType, BoulderCell, Cell, EmptyCell, EndCell, GravelCell, StartCell, WormSCell } from '.';
+import { BoardType, BoulderCell, Cell, EmptyCell, EndCell, GravelCell, InvalidCell, StartCell, WormECell, WormSCell } from '.';
 
 export type Result = null | {
   path: Path;
@@ -124,7 +124,8 @@ export class Game {
       }
 
       const currentCell = this.getCellAt(currentPoint);
-      const weight = this.getWeightFrom(currentCell);
+      const lastVisitedCell = this.getCellAt(currentPointVisitor.getLastVisited());
+      const weight = this.getWeightFrom(currentCell, lastVisitedCell);
 
       switch (currentCell) {
         case EndCell:
@@ -146,10 +147,18 @@ export class Game {
           // When a wormhole start cell is found, add it to the path and visit other wormhole end cells
           currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, weight));
           currentPointVisitor.visit(currentPoint);
-          // const wormholes = this.board.find(WormECell)
-          // .filter(([x, y]) => 'already visited' ??);
-          //queue.push([wormhole, currentPath, currentPointVisitor]);
-          //continue;
+          const wormholes = this.board.find(WormECell)
+            .filter(([x, y]) => !currentPointVisitor.hasVisited([x, y]));
+          for (const wormhole of wormholes) {
+            const newPointVisitor = new PointVisitor(currentPointVisitor.points);
+            const newPath = [...currentPath];
+            queue.push([wormhole, newPath, newPointVisitor]);
+          }
+          break;
+        case WormECell:
+          // When a wormhole end cell is found, add it to the path
+          currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, weight));
+          currentPointVisitor.visit(currentPoint);
           break;
         case BoulderCell:
           currentPointVisitor.visit(currentPoint);
@@ -182,7 +191,7 @@ export class Game {
       }
     }
   }
-  public getWeightFrom(currentCell: Cell | null) {
+  public getWeightFrom(currentCell: Cell | null, previousCell: Cell | null): number {
     switch (currentCell) {
       case EndCell:
       case EmptyCell:
@@ -193,12 +202,21 @@ export class Game {
         return 0;
       case GravelCell:
         return 2;
+      case WormECell:
+        if (previousCell === WormSCell) {
+          return 0;
+        }
+        return 1;
       default:
         throw new Error("Invalid cell");
     }
   }
 
-  private getCellAt([x, y]: Point): Cell | null {
+  private getCellAt(p: Point): Cell | null {
+    if (!p) {
+      return InvalidCell;
+    }
+    const [x, y] = p;
     return this.board.getCellAt(x, y);
   }
 }

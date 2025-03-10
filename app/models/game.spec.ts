@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { Game, Vector } from "./game";
-import { Board, EmptyCell, EndCell, StartCell, BoulderCell, GravelCell, WormSCell } from ".";
+import { Board, EmptyCell, EndCell, StartCell, BoulderCell, GravelCell, WormSCell, WormECell } from ".";
 
 describe("Game: Obstacle course solver", () => {
 
@@ -52,8 +52,16 @@ describe("Game: Obstacle course solver", () => {
       [EmptyCell, GravelCell, EndCell]]}   |  ${4}          | ${`with 1 Boulder and 1 Gravel`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1), new Vector([1, 1] , [1, 2], 1), new Vector([1, 2] , [2, 2], 1)]}
     ${[[StartCell, BoulderCell, EmptyCell], 
       [WormSCell, EmptyCell, EmptyCell],
-      [EmptyCell, GravelCell, EndCell]]}   |  ${4}          | ${`with 1 Wormhole start cell`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1), new Vector([1, 1] , [1, 2], 1), new Vector([1, 2] , [2, 2], 1)]}
-    
+      [EmptyCell, GravelCell, EndCell]]}   |  ${4}          | ${`with 1 Wormhole start cell`}  |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1), new Vector([1, 1] , [1, 2], 1), new Vector([1, 2] , [2, 2], 1)]}
+    ${[[StartCell, BoulderCell, EmptyCell], 
+      [WormECell, EmptyCell, EmptyCell],
+      [EmptyCell, GravelCell, EndCell]]}   |  ${4}          | ${`with 1 Wormhole end cell`}    |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1), new Vector([1, 1] , [1, 2], 1), new Vector([1, 2] , [2, 2], 1)]}
+    ${[[StartCell, BoulderCell, EmptyCell], 
+      [WormSCell, EmptyCell, WormECell],
+      [EmptyCell, GravelCell, EndCell]]}   |  ${2}          | ${`with 1 WH start & 1 WH end cell`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 2], 0), new Vector([1, 2] , [2, 2], 1)]}
+    ${[[BoulderCell, WormECell, EndCell], 
+      [WormSCell, BoulderCell, BoulderCell],
+      [EmptyCell, StartCell, EmptyCell]]}   |  ${3}          | ${`using wormhole`} |${[new Vector([2, 1], [2, 0], 1), new Vector([2, 0] , [1, 0], 1), new Vector([1, 0] , [0, 1], 0),  new Vector([0, 1] , [0, 2], 1)]}
     `('should solve Board $testDescription in $resultSteps steps', ({board, resultSteps, resultPath}) => {
       const game = new Game(new Board(board));
 

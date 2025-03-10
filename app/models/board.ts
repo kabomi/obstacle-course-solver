@@ -15,13 +15,14 @@ export const EndCell = 'E';
 export const BoulderCell = 'B';
 export const GravelCell = 'G';
 export const WormSCell = 'WS';
+export const WormECell = 'WE';
 export const InvalidCell = null;
 export type Cell = typeof EmptyCell | typeof StartCell | typeof EndCell | 
-  typeof BoulderCell | typeof GravelCell | typeof WormSCell;
+  typeof BoulderCell | typeof GravelCell | typeof WormSCell | typeof WormECell;
 
-export type ObstacleCell = typeof BoulderCell | typeof GravelCell | typeof WormSCell;
+export type ObstacleCell = typeof BoulderCell | typeof GravelCell | typeof WormSCell | typeof WormECell;
 export type ObstacleRotationCell = typeof EmptyCell | ObstacleCell;
-export const obstacleCells = [BoulderCell, GravelCell, WormSCell] as const;
+export const obstacleCells = [BoulderCell, GravelCell, WormSCell, WormECell] as const;
 export const obstacleRotationCells = [...obstacleCells, EmptyCell] as const;
 
 export class Board implements BoardType {
