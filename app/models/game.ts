@@ -1,4 +1,4 @@
-import { BoardType, BoulderCell, Cell, EmptyCell, EndCell, GravelCell, StartCell } from '.';
+import { BoardType, BoulderCell, Cell, EmptyCell, EndCell, GravelCell, StartCell, WormSCell } from '.';
 
 export type Result = null | {
   path: Path;
@@ -142,6 +142,15 @@ export class Game {
           currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, weight));
           currentPointVisitor.visit(currentPoint);
           break;
+        case WormSCell:
+          // When a wormhole start cell is found, add it to the path and visit other wormhole end cells
+          currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, weight));
+          currentPointVisitor.visit(currentPoint);
+          // const wormholes = this.board.find(WormECell)
+          // .filter(([x, y]) => 'already visited' ??);
+          //queue.push([wormhole, currentPath, currentPointVisitor]);
+          //continue;
+          break;
         case BoulderCell:
           currentPointVisitor.visit(currentPoint);
           continue;
@@ -177,6 +186,7 @@ export class Game {
     switch (currentCell) {
       case EndCell:
       case EmptyCell:
+      case WormSCell:
         return 1;
       case StartCell:
       case BoulderCell:

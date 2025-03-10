@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { Game, Vector } from "./game";
-import { Board, EmptyCell, EndCell, StartCell, BoulderCell, GravelCell } from ".";
+import { Board, EmptyCell, EndCell, StartCell, BoulderCell, GravelCell, WormSCell } from ".";
 
 describe("Game: Obstacle course solver", () => {
 
@@ -50,6 +50,9 @@ describe("Game: Obstacle course solver", () => {
     ${[[StartCell, BoulderCell, EmptyCell], 
       [EmptyCell, EmptyCell, EmptyCell],
       [EmptyCell, GravelCell, EndCell]]}   |  ${4}          | ${`with 1 Boulder and 1 Gravel`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1), new Vector([1, 1] , [1, 2], 1), new Vector([1, 2] , [2, 2], 1)]}
+    ${[[StartCell, BoulderCell, EmptyCell], 
+      [WormSCell, EmptyCell, EmptyCell],
+      [EmptyCell, GravelCell, EndCell]]}   |  ${4}          | ${`with 1 Wormhole start cell`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1), new Vector([1, 1] , [1, 2], 1), new Vector([1, 2] , [2, 2], 1)]}
     
     `('should solve Board $testDescription in $resultSteps steps', ({board, resultSteps, resultPath}) => {
       const game = new Game(new Board(board));
