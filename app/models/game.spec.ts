@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { Game, Vector } from "./game";
-import { Board, EmptyCell, EndCell, StartCell, BoulderCell } from ".";
+import { Board, EmptyCell, EndCell, StartCell, BoulderCell, GravelCell } from ".";
 
 describe("Game: Obstacle course solver", () => {
 
@@ -30,8 +30,29 @@ describe("Game: Obstacle course solver", () => {
                 [BoulderCell, BoulderCell]])} |  ${1}      | ${`with two Boulder cells`} |${[new Vector([0, 0], [0, 1], 1)]}
     ${new Board([[StartCell, BoulderCell ], 
                 [BoulderCell, EndCell]])} |  ${0}          | ${`that it's not solvable`} |${undefined}
+    ${new Board([[StartCell, EmptyCell ], 
+                [GravelCell, EndCell]])} |  ${2}          | ${`with a Gravel cell`} |${[new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)]}
+    ${new Board([[StartCell, GravelCell ], 
+                [GravelCell, EndCell]])} |  ${3}          | ${`with a two Gravel cells`} |${[new Vector([0, 0], [1, 0], 2), new Vector([1, 0] , [1, 1], 1)]}
     `('should solve Board $testDescription in $resultSteps steps', ({board, resultSteps, resultPath}) => {
       const game = new Game(board);
+
+      game.start();
+
+      const result = game.getResult();
+
+      expect(result).toEqual(expect.objectContaining({ path: resultPath, steps: resultSteps }));
+    });
+  });
+  describe("With 3x3 board", () => {
+    it.each`
+    board                                  | resultSteps    |  testDescription                 |  resultPath
+    ${[[StartCell, BoulderCell, EmptyCell], 
+      [EmptyCell, EmptyCell, EmptyCell],
+      [EmptyCell, GravelCell, EndCell]]}   |  ${4}          | ${`with 1 Boulder and 1 Gravel`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1), new Vector([1, 1] , [1, 2], 1), new Vector([1, 2] , [2, 2], 1)]}
+    
+    `('should solve Board $testDescription in $resultSteps steps', ({board, resultSteps, resultPath}) => {
+      const game = new Game(new Board(board));
 
       game.start();
 

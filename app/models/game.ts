@@ -1,4 +1,4 @@
-import { BoardType, BoulderCell, Cell, EmptyCell, EndCell, StartCell } from '.';
+import { BoardType, BoulderCell, Cell, EmptyCell, EndCell, GravelCell, StartCell } from '.';
 
 export type Result = null | {
   path: Path;
@@ -124,30 +124,30 @@ export class Game {
       }
 
       const currentCell = this.getCellAt(currentPoint);
+      const weight = this.getWeightFrom(currentCell);
 
-      // If the current cell is the end cell, add the path to the list of paths
-      if (currentCell === EndCell) {
-        currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, 1));
-        this.paths.push(currentPath);
-        currentPointVisitor.visit(currentPoint);
-        continue;
+      switch (currentCell) {
+        case EndCell:
+          // If the current cell is the end cell, add the path to the list of paths
+          currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, weight));
+          this.paths.push(currentPath);
+          currentPointVisitor.visit(currentPoint);
+          continue;
+        case StartCell:
+          currentPointVisitor.visit(currentPoint);
+          break;
+        case EmptyCell:
+        case GravelCell:
+          // When an empty cell is found, add it to the path
+          currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, weight));
+          currentPointVisitor.visit(currentPoint);
+          break;
+        case BoulderCell:
+          currentPointVisitor.visit(currentPoint);
+          continue;
+        default:
+          throw new Error("Invalid cell");
       }
-
-      // Mark the current point as visited based on the Cell type
-      if (currentCell === StartCell) {
-        currentPointVisitor.visit(currentPoint);
-      }
-      // When an empty cell is found, add it to the path
-      if (currentCell === EmptyCell) {
-        currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, 1));
-        currentPointVisitor.visit(currentPoint);
-      }
-      // When a boulder cell is found, mark it as visited and skip this point
-      if (currentCell === BoulderCell) {
-        currentPointVisitor.visit(currentPoint);
-        continue;
-      }
-      
 
       const neighbors = [[currentX -1, currentY], [currentX +1, currentY], [currentX, currentY -1], [currentX, currentY +1]] as Point[];
 
@@ -171,6 +171,20 @@ export class Game {
           queue.push([neighbor, newPath, newPointVisitor]);
         }
       }
+    }
+  }
+  public getWeightFrom(currentCell: Cell | null) {
+    switch (currentCell) {
+      case EndCell:
+      case EmptyCell:
+        return 1;
+      case StartCell:
+      case BoulderCell:
+        return 0;
+      case GravelCell:
+        return 2;
+      default:
+        throw new Error("Invalid cell");
     }
   }
 

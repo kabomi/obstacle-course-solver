@@ -13,8 +13,14 @@ export const EmptyCell = '';
 export const StartCell = 'S';
 export const EndCell = 'E';
 export const BoulderCell = 'B';
+export const GravelCell = 'G';
 export const InvalidCell = null;
-export type Cell = typeof EmptyCell | typeof StartCell | typeof EndCell | typeof BoulderCell;
+export type Cell = typeof EmptyCell | typeof StartCell | typeof EndCell | typeof BoulderCell | typeof GravelCell;
+
+export type ObstacleCell = typeof BoulderCell | typeof GravelCell;
+export type ObstacleRotationCell = typeof EmptyCell | typeof BoulderCell | typeof GravelCell;
+export const obstacleCells = [BoulderCell, GravelCell] as const;
+export const obstacleRotationCells = [BoulderCell, GravelCell, EmptyCell] as const;
 
 export class Board implements BoardType {
   rowLength: number;

@@ -1,6 +1,6 @@
 import { createStore } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { Board, BoulderCell, Cell, EmptyCell, EndCell, Game, GamePhase, InvalidCell, Point, Result, StartCell } from '../models'
+import { Board, Cell, EndCell, Game, GamePhase, InvalidCell, ObstacleRotationCell, obstacleRotationCells, Point, Result, StartCell } from '../models'
 
 export type GameState = {
   result?: Result
@@ -86,13 +86,11 @@ export const createGameStore = (
   })))
 }
 
-function nextObstacle(cell: Cell): Cell {
-  switch (cell) {
-    case EmptyCell:
-      return BoulderCell;
-    case BoulderCell:
-      return EmptyCell;
-    default:
-      return EmptyCell;
+function nextObstacle(cell: ObstacleRotationCell): ObstacleRotationCell {
+  for (let i = 0; i < obstacleRotationCells.length; i++) {
+    if (cell === obstacleRotationCells[i]) {
+      return obstacleRotationCells[(i + 1) % obstacleRotationCells.length];
+    }
   }
+  throw new Error("Invalid cell");
 }
