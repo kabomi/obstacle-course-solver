@@ -58,10 +58,6 @@ export default function GamePage() {
         setActionName("Restart");
         break;
     }
-    if (phase === GamePhase.Play) {
-      console.log(result);
-      //model?.start();
-    }
   }, [phase]);
 
   return (
@@ -86,12 +82,12 @@ export default function GamePage() {
           )}
           {phase >= GamePhase.PlaceStart && placementBoard && (
             <div data-testid="game-board" className="flex flex-col">
-              <Board cells={placementBoard} onCellClick={onCellClick} />
+              <Board cells={placementBoard} path={result?.path} onCellClick={onCellClick} />
             </div>
           )}
           {result && (
             <p data-testid="game-result" className="flex self-center mb-4">
-              Minimum steps: {result.steps}
+              {result.steps > 0 ? `Minimum steps: ${result.steps}` : "Unable to calculate route"}
             </p>
           )}
           <p className="flex self-center">

@@ -239,9 +239,10 @@ describe("Game Page", () => {
       placementBoard = Board.generateEmptyBoard(2);
       placementBoard[0][1] = StartCell;
       placementBoard[1][1] = EndCell;
-      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.Play})
+      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.PlaceObstacles})
     });
     it("Shows a Board Game component", () => {
+      store.getState().nextPhase();
       render(
         <GameStoreContext.Provider value={store}>
           <GamePage />
@@ -251,6 +252,7 @@ describe("Game Page", () => {
       expect(screen.getByTestId("game-board")).toBeInTheDocument();
     });
     it("Shows the resulting steps", () => {
+      store.getState().nextPhase();
       render(
         <GameStoreContext.Provider value={store}>
           <GamePage />
@@ -258,6 +260,17 @@ describe("Game Page", () => {
       );
 
       expect(screen.getByTestId("game-result")).toBeInTheDocument();
+      expect(screen.getByTestId("game-result")).toHaveTextContent("Minimum steps: 1");
+    });
+    it("Shows a message indicating that there is no path that solves the game", () => {
+      store.setState({ ...store.getState(), placementBoard, result: { path: [], steps: 0 }, phase: GamePhase.Play})
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+      expect(screen.getByTestId("game-result")).toBeInTheDocument();
+      expect(screen.getByTestId("game-result")).toHaveTextContent("Unable to calculate route");
     });
   });
 });

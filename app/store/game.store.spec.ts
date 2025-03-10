@@ -5,12 +5,14 @@ describe('Game Store', () => {
   it('has an initial state', () => {
     const state = initGameStore();
 
-    expect(state).toEqual({
+    expect(state).toEqual(expect.objectContaining({
       boardSize: 2,
       phase: GamePhase.SelectMatrix,
       result: undefined,
-      placementBoard: undefined
-    });
+      placementBoard: undefined,
+      startPoint: undefined,
+      endPoint: undefined
+    }));
   });
   describe('actions', () => {
     it('changes phase on nextPhase', () => {

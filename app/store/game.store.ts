@@ -23,7 +23,10 @@ export const initGameStore = (): GameState => {
   return { 
     boardSize: 2,
     phase: GamePhase.SelectMatrix,
-    placementBoard: undefined
+    placementBoard: undefined,
+    result: undefined,
+    startPoint: undefined,
+    endPoint: undefined
   }
 }
 
@@ -35,7 +38,7 @@ export const createGameStore = (
   return createStore<GameStore>()(devtools((set) => ({
     ...initState,
     nextPhase: () => set((state) => { 
-      if (state.phase === GamePhase.Play) return defaultInitState;
+      if (state.phase === GamePhase.Play) return { ...defaultInitState };
       if (state.phase === GamePhase.SelectMatrix) {
         const placementBoard = Board.generateEmptyBoard(state.boardSize);
         state.placementBoard = placementBoard;
