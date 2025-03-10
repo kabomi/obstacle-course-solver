@@ -233,4 +233,31 @@ describe("Game Page", () => {
       expect(screen.getByRole("button", { name: /^Play$/ })).toBeInTheDocument();
     });
   });
+  describe("On Play phase", () => {
+    let placementBoard: Cell[][] = [];
+    beforeEach(() => {
+      placementBoard = Board.generateEmptyBoard(2);
+      placementBoard[0][1] = StartCell;
+      placementBoard[1][1] = EndCell;
+      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.Play})
+    });
+    it("Shows a Board Game component", () => {
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+
+      expect(screen.getByTestId("game-board")).toBeInTheDocument();
+    });
+    it("Shows the resulting steps", () => {
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+
+      expect(screen.getByTestId("game-result")).toBeInTheDocument();
+    });
+  });
 });

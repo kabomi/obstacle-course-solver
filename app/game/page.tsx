@@ -7,7 +7,7 @@ import { useGameStore } from '@/app/providers/game.store-provider'
 
 export default function GamePage() {
   const { phase, nextPhase, boardSize, setBoardSize,
-    placementBoard, place, startPoint, model
+    placementBoard, place, startPoint, result
    } = useGameStore(
     (state) => state,
   );
@@ -59,7 +59,7 @@ export default function GamePage() {
         break;
     }
     if (phase === GamePhase.Play) {
-      console.log(model);
+      console.log(result);
       //model?.start();
     }
   }, [phase]);
@@ -88,6 +88,11 @@ export default function GamePage() {
             <div data-testid="game-board" className="flex flex-col">
               <Board cells={placementBoard} onCellClick={onCellClick} />
             </div>
+          )}
+          {result && (
+            <p data-testid="game-result" className="flex self-center mb-4">
+              Minimum steps: {result.steps}
+            </p>
           )}
           <p className="flex self-center">
             <button disabled={disableNext}

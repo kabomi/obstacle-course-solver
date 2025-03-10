@@ -1,9 +1,9 @@
 import { createStore } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { Board, BoulderCell, Cell, EmptyCell, EndCell, Game, GamePhase, InvalidCell, Point, StartCell } from '../models'
+import { Board, BoulderCell, Cell, EmptyCell, EndCell, Game, GamePhase, InvalidCell, Point, Result, StartCell } from '../models'
 
 export type GameState = {
-  model: Game | undefined
+  result?: Result
   phase: GamePhase
   boardSize: number
   placementBoard: Cell[][] | undefined
@@ -23,7 +23,6 @@ export const initGameStore = (): GameState => {
   return { 
     boardSize: 2,
     phase: GamePhase.SelectMatrix,
-    model: undefined,
     placementBoard: undefined
   }
 }
@@ -42,8 +41,9 @@ export const createGameStore = (
         state.placementBoard = placementBoard;
       }
       if (state.phase === GamePhase.PlaceObstacles) {
-        state.model = new Game(new Board(state.placementBoard!));
-        state.model.start();
+        const game = new Game(new Board(state.placementBoard!));
+        game.start();
+        state.result = game.getResult();
       }
       state.phase += 1;
       return { ...state };

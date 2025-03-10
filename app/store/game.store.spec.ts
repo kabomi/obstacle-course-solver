@@ -8,7 +8,7 @@ describe('Game Store', () => {
     expect(state).toEqual({
       boardSize: 2,
       phase: GamePhase.SelectMatrix,
-      model: undefined,
+      result: undefined,
       placementBoard: undefined
     });
   });
@@ -39,7 +39,7 @@ describe('Game Store', () => {
 
       store.getState().nextPhase();
 
-      expect(store.getState().model).toBeDefined();
+      expect(store.getState().result).toBeDefined();
     });
     it('does reset state on nextPhase if phase is Play', () => {
       const state = initGameStore();
