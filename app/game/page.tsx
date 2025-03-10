@@ -7,11 +7,12 @@ import { useGameStore } from '@/app/providers/game.store-provider'
 
 export default function GamePage() {
   const { phase, nextPhase, boardSize, setBoardSize,
-    placementBoard, place, startPoint
+    placementBoard, place, startPoint, model
    } = useGameStore(
     (state) => state,
   );
   const [disableNext, setDisableNext] = useState(false);
+  const [actionName, setActionName] = useState("Next");
 
   const getHeaderText = useCallback(() => {
     switch (phase) {
@@ -41,8 +42,25 @@ export default function GamePage() {
   }, [place, phase, startPoint]);
 
   useEffect(() => {
-    if (phase === GamePhase.PlaceStart || phase === GamePhase.PlaceEnd) {
-      setDisableNext(true);
+    switch (phase) {
+      case GamePhase.SelectMatrix:
+        setActionName("Next");
+        break;
+      case GamePhase.PlaceStart:
+      case GamePhase.PlaceEnd:
+        setActionName("Next");
+        setDisableNext(true);
+        break;
+      case GamePhase.PlaceObstacles:
+        setActionName("Play");
+        break;
+      case GamePhase.Play:
+        setActionName("Restart");
+        break;
+    }
+    if (phase === GamePhase.Play) {
+      console.log(model);
+      //model?.start();
     }
   }, [phase]);
 
@@ -74,7 +92,7 @@ export default function GamePage() {
           <p className="flex self-center">
             <button disabled={disableNext}
               onClick={() => nextPhase() }>
-              Next
+              {actionName}
             </button>
           </p>
         </article>

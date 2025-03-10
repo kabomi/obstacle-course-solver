@@ -29,14 +29,26 @@ describe('Game Store', () => {
 
       expect(store.getState().placementBoard).toBeDefined();
     });
-    it('does not change phase on nextPhase if phase is Play', () => {
+    it('generates a result on nextPhase if phase is PlaceObstacles', () => {
+      const state = initGameStore();
+      state.phase = GamePhase.PlaceObstacles;
+      state.placementBoard = Board.generateEmptyBoard(2);
+      state.placementBoard[0][0] = StartCell;
+      state.placementBoard[0][1] = EndCell;
+      const store = createGameStore(state);
+
+      store.getState().nextPhase();
+
+      expect(store.getState().model).toBeDefined();
+    });
+    it('does reset state on nextPhase if phase is Play', () => {
       const state = initGameStore();
       state.phase = GamePhase.Play;
       const store = createGameStore(state);
 
       store.getState().nextPhase();
 
-      expect(store.getState().phase).toBe(GamePhase.Play);
+      expect(store.getState()).toEqual(expect.objectContaining(initGameStore()));
     });
     it('changes board size on setBoardSize', () => {
       const state = initGameStore();
@@ -123,6 +135,19 @@ describe('Game Store', () => {
 
         expect(store.getState().placementBoard![0][1]).toBe(EndCell);
       });
+    });
+    it('does not place any cell on Play phase', () => {
+      const state = initGameStore();
+      state.phase = GamePhase.Play;
+      state.placementBoard = Board.generateEmptyBoard(2);
+      const store = createGameStore(state);
+
+      store.getState().place([0, 0]);
+      store.getState().place([0, 1]);
+      store.getState().place([1, 0]);
+      store.getState().place([1, 1]);
+
+      expect(store.getState().placementBoard).toEqual(Board.generateEmptyBoard(2));
     });
   });
 });

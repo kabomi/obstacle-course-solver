@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import GamePage from "./page";
 import { GameStoreContext, GameStoreProvider } from "../providers/game.store-provider";
 import { createGameStore } from "../store/game.store";
-import { Board, EndCell, GamePhase, StartCell } from "../models";
+import { Board, BoulderCell, Cell, EmptyCell, EndCell, GamePhase, StartCell } from "../models";
 
 jest.mock('../components/board');
 
@@ -170,6 +170,67 @@ describe("Game Page", () => {
       fireEvent.click(screen.getByTestId("cell-0-0"));
 
       expect(screen.getByRole("button")).toBeDisabled();
+    });
+  });
+  describe("On place obstacles phase", () => {
+    let placementBoard: Cell[][] = [];
+    beforeEach(() => {
+      placementBoard = Board.generateEmptyBoard(2);
+      placementBoard[0][1] = StartCell;
+      placementBoard[1][1] = EndCell;
+      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.PlaceObstacles})
+    });
+    it("Shows a Board Game component", () => {
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+
+      expect(screen.getByTestId("game-board")).toBeInTheDocument();
+    });
+    it("places an Obstacle when clicking on an EmptyCell", () => {
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+
+      fireEvent.click(screen.getByTestId("cell-0-0"));
+
+      const state = store.getState();
+      expect(state.placementBoard![0][1]).toBe(StartCell);
+      expect(state.placementBoard![1][1]).toBe(EndCell);
+      expect(state.placementBoard![0][0]).toBe(BoulderCell);
+    });
+    it("places an EmptyCell when clicking on a BoulderCell", () => {
+      store.setState({ ...store.getState(), placementBoard: [[BoulderCell, StartCell], [EmptyCell, EndCell]]})
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+
+      fireEvent.click(screen.getByTestId("cell-0-0"));
+
+      const state = store.getState();
+      expect(state.placementBoard![0][1]).toBe(StartCell);
+      expect(state.placementBoard![1][1]).toBe(EndCell);
+      expect(state.placementBoard![0][0]).toBe(EmptyCell);
+    });
+
+
+    it("rename next action to start", () => {
+      const placementBoard = Board.generateEmptyBoard(2);
+      placementBoard[0][0] = StartCell;
+      store.setState({ ...store.getState(), startPoint: [0, 0], placementBoard, phase: GamePhase.PlaceObstacles})
+      render(
+        <GameStoreContext.Provider value={store}>
+          <GamePage />
+        </GameStoreContext.Provider>
+      );
+
+      expect(screen.getByRole("button", { name: /^Play$/ })).toBeInTheDocument();
     });
   });
 });

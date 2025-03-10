@@ -36,16 +36,20 @@ export const createGameStore = (
   return createStore<GameStore>()(devtools((set) => ({
     ...initState,
     nextPhase: () => set((state) => { 
-      if (state.phase === GamePhase.Play) return state;
+      if (state.phase === GamePhase.Play) return defaultInitState;
       if (state.phase === GamePhase.SelectMatrix) {
         const placementBoard = Board.generateEmptyBoard(state.boardSize);
         state.placementBoard = placementBoard;
+      }
+      if (state.phase === GamePhase.PlaceObstacles) {
+        state.model = new Game(new Board(state.placementBoard!));
+        state.model.start();
       }
       state.phase += 1;
       return { ...state };
     }),
     place: ([x, y]: Point) => set((state) => {
-      if (!state.placementBoard) return state;
+      if (!state.placementBoard || state.phase === GamePhase.Play) return state;
       const previousBoard = new Board(state.placementBoard);
       let placementBoard = new Board(Board.generateEmptyBoard(state.boardSize));
       if (!placementBoard) return state;
