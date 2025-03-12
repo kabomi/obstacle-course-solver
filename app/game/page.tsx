@@ -92,7 +92,7 @@ export default function GamePage() {
           )}
           <p className="flex self-center">
             <button disabled={disableNext}
-              onClick={() => nextPhase() }>
+              onClick={nextPhase}>
               {actionName}
             </button>
           </p>

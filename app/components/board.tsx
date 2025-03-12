@@ -1,6 +1,7 @@
 "use client";
 
 import { Cell, Path, Point } from "../models";
+import { BoardCell } from "./cell";
 export interface BoardProps {
   cells: Cell[][];
   path?: Path;
@@ -26,28 +27,12 @@ export default function Board({ cells, path, onCellClick } : BoardProps) {
         {cells.map((row, x) => (
           <div key={x} className="flex flex-row">
             {row.map((cell, y) => (
-              <BoardCell dataTestId={`cell-${x}-${y}`}  key={y} cell={cell} 
-                color={getColorForPoint([x, y], coloredPoints)} onClick={() => onCellClick([x, y])} />
+              <BoardCell dataTestId={`cell-${x}-${y}`} key={`${x}-${y}`} cell={cell} x={x} y={y}
+              color={getColorForPoint([x, y], coloredPoints)} onClick={onCellClick} />
             ))}
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-interface BoardCellProps {
-  cell: Cell;
-  color?: string;
-  dataTestId: string;
-  onClick: () => void;
-};
-
-export function BoardCell({ cell, dataTestId, color = '', onClick }: BoardCellProps) {
-  return (
-    <div data-testid={dataTestId}
-      className={`flex justify-center items-center border border-white w-8 h-8 ${color}`} onClick={() => onClick()}>
-      {cell}
     </div>
   );
 }
