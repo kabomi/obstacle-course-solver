@@ -1,7 +1,7 @@
 import { BoardType, BoulderCell, Cell, EmptyCell, EndCell, GravelCell, InvalidCell, StartCell, WormECell, WormSCell } from '.';
 
 export type Result = null | {
-  path: Path;
+  path?: Path;
   steps: number;
 }
 
@@ -42,7 +42,7 @@ export type Path = Vector[];
 
 export class Game {
   board: BoardType;
-  paths: Path[] = [];
+  shortestPath?: Path;
   result: Result = null;
 
   constructor(board: BoardType) {
@@ -50,33 +50,22 @@ export class Game {
   }
 
   public getResult(): Result {
-    const path = this.getShorterPath();
     return {
-      path,
-      steps: this.calculateStepsFrom(path)
+      path: this.shortestPath,
+      steps: this.shortestPath ? this.calculateStepsFrom(this.shortestPath) : 0,
     };
   }
 
-  private getShorterPath() {
-    let shorterPath = this.paths[0];
-    let shorterPathLength = this.calculateStepsFrom(shorterPath);
-    const endCell = this.board.find(EndCell)[0];
-    this.paths.forEach((path) => {
-      const [endX, endY] = path[path.length - 1].p2;
-      if (endX !== endCell[0] || endY !== endCell[1]) {
-        return;
-      }
-      const pathLength = this.calculateStepsFrom(path);
-      if (pathLength < shorterPathLength) {
-        shorterPath = path;
-        shorterPathLength = pathLength;
-      }
-    });
-    return shorterPath;
+  private setShorterPath(newPath: Path) {
+    const shorterPathLength = this.shortestPath ? this.calculateStepsFrom(this.shortestPath) : Infinity;
+    const newPathLength = this.calculateStepsFrom(newPath);
+    if (newPathLength < shorterPathLength) {
+      this.shortestPath = newPath;
+    }
   }
 
   public start() {
-    this.paths = [];
+    this.shortestPath = undefined;
     this.result = null;
     if (this.board.colLength <= 1 || this.board.colLength <= 1) {
         throw new Error("Invalid board");
@@ -104,14 +93,23 @@ export class Game {
     return path.reduce((acc, vector) => acc + vector.weight, 0);
   }
 
+  // TODO: Substitute algorithm with A* algorithm or Dijkstra's algorithm
   private findShortestPath([startX, startY]: Point, [endX, endY]: Point) {
     const pointVisitor =  new PointVisitor([]);
 
     const queue: [Point, Path, PointVisitor][] = [[[startX, startY], [], pointVisitor]];
 
+    let iterations = 0;
+    let shortestPathLength = Infinity;
     while(queue.length > 0) {
-      const [currentPoint, currentPath, currentPointVisitor] = queue.shift() as [Point, Path, PointVisitor];
+      iterations = iterations + 1;
+      const [currentPoint, currentPath, currentPointVisitor] = queue.pop() as [Point, Path, PointVisitor];
       const [currentX, currentY] = currentPoint;
+
+      // If the currentPath + 1 is longer than the shortestPath, skip this point
+      if (shortestPathLength < this.calculateStepsFrom(currentPath) + 1) {
+        continue;
+      }
       
       // If already visited, skip this point
       if (currentPointVisitor.hasVisited(currentPoint)) {
@@ -123,6 +121,27 @@ export class Game {
         continue;
       }
 
+      // Boost the algorithm when there are no wormholes and the board is big
+      // When there are no Wormholes and the currentPath + distanceToEnd is less than board rowLength + board colLength - 2, skip this point
+      if (this.board.find(WormSCell).length === 0 && this.board.find(WormECell).length === 0 && (this.board.rowLength + this.board.colLength > 10)) {
+        const distanceToEnd = Math.abs(endX - currentX) + Math.abs(endY - currentY);
+        if (this.shortestPath && this.calculateStepsFrom(currentPath) + distanceToEnd < this.board.rowLength + this.board.colLength - 2) {
+          continue;
+        }
+      }
+
+      // If the currentPath + (Min distance to end or to a WormSCell + Min distance from a WormECell to the end) is longer than the shortestPath, skip this point
+      const distanceToEnd = Math.abs(endX - currentX) + Math.abs(endY - currentY);
+      const minDistanceToWormSCell = this.board.find(WormSCell)
+        .map(([x, y]) => Math.abs(x - currentX) + Math.abs(y - currentY))
+        .reduce((acc, distance) => Math.min(acc, distance), Infinity);
+      const minDistanceFromWormECell = this.board.find(WormECell)
+        .map(([x, y]) => Math.abs(x - endX) + Math.abs(y - endY))
+        .reduce((acc, distance) => Math.min(acc, distance), Infinity);
+      if (this.shortestPath && this.calculateStepsFrom(currentPath) + Math.min(distanceToEnd, minDistanceToWormSCell + minDistanceFromWormECell) >= this.calculateStepsFrom(this.shortestPath)) {
+        continue;
+      }
+
       const currentCell = this.getCellAt(currentPoint);
       const lastVisitedCell = this.getCellAt(currentPointVisitor.getLastVisited());
       const weight = this.getWeightFrom(currentCell, lastVisitedCell);
@@ -131,7 +150,9 @@ export class Game {
         case EndCell:
           // If the current cell is the end cell, add the path to the list of paths
           currentPath.push(new Vector(currentPointVisitor.getLastVisited(), currentPoint, weight));
-          this.paths.push(currentPath);
+          this.setShorterPath(currentPath);
+          shortestPathLength = this.calculateStepsFrom(this.shortestPath!);
+          console.log('EndCell', 'iteration ', iterations, currentPath, 'steps ', );
           currentPointVisitor.visit(currentPoint);
           continue;
         case StartCell:
@@ -167,8 +188,9 @@ export class Game {
           throw new Error("Invalid cell");
       }
 
-      const neighbors = [[currentX -1, currentY], [currentX +1, currentY], [currentX, currentY -1], [currentX, currentY +1]] as Point[];
-
+      //const neighbors = [[currentX -1, currentY], [currentX +1, currentY], [currentX, currentY -1], [currentX, currentY +1]] as Point[];
+      const neighbors = this.getNeighborsOrderedByDistance(currentPoint, [endX, endY]);
+      
       for (const neighbor of neighbors) {
         const [neighborX, neighborY] = neighbor;
         if (neighborX < 0 || neighborY < 0 || neighborX >= this.board.rowLength || neighborY >= this.board.colLength) {
@@ -181,15 +203,26 @@ export class Game {
         const newPointVisitor = new PointVisitor(currentPointVisitor.points);
         const newPath = [...currentPath];
         
-        if (newPointVisitor.hasVisited([endX, endY]) && !currentPointVisitor.hasVisited([endX, endY])) {
-          this.paths.push(newPath);
-          currentPointVisitor.visit(neighbor);
+        if (shortestPathLength <= this.calculateStepsFrom(newPath) + 1) {
           continue;
-        } else {
-          queue.push([neighbor, newPath, newPointVisitor]);
         }
+        
+        queue.push([neighbor, newPath, newPointVisitor]);
       }
     }
+  }
+  private getNeighborsOrderedByDistance(currentPoint: Point, [endX, endY]: Point): Point[] {
+    const [currentX, currentY] = currentPoint;
+    const neighbors = [[currentX -1, currentY], [currentX +1, currentY], [currentX, currentY -1], [currentX, currentY +1]] as Point[];
+    
+    // Order the neighbors by distance to the end point
+    return neighbors.sort((a, b) => {
+      const [aX, aY] = a;
+      const [bX, bY] = b;
+      const aDistance = Math.abs(aX - endX) + Math.abs(aY - endY);
+      const bDistance = Math.abs(bX - endX) + Math.abs(bY - endY);
+      return aDistance - bDistance;
+    }).reverse();
   }
   public getWeightFrom(currentCell: Cell | null, previousCell: Cell | null): number {
     switch (currentCell) {

@@ -45,8 +45,11 @@ export const createGameStore = (
       }
       if (state.phase === GamePhase.PlaceObstacles) {
         const game = new Game(new Board(state.placementBoard!));
+        // elapsed time
+        const start = performance.now();
         game.start();
         state.result = game.getResult();
+        console.log("Elapsed time (ms): ", performance.now() - start);
       }
       state.phase += 1;
       return { ...state };

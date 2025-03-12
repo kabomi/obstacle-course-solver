@@ -22,12 +22,12 @@ export default function Board({ cells, path, onCellClick } : BoardProps) {
   return (
     <div data-testid="board" className="flex flex-col items-center mb-4">
       <h2 className="mb-4">Board</h2>
-      <div className="flex flex-row">
-        {cells.map((row, i) => (
-          <div key={i} className="flex flex-col">
-            {row.map((cell, j) => (
-              <BoardCell dataTestId={`cell-${i}-${j}`}  key={j} cell={cell} 
-                color={getColorForPoint([i, j], coloredPoints)} onClick={() => onCellClick([i, j])} />
+      <div className="flex flex-col">
+        {cells.map((row, x) => (
+          <div key={x} className="flex flex-row">
+            {row.map((cell, y) => (
+              <BoardCell dataTestId={`cell-${x}-${y}`}  key={y} cell={cell} 
+                color={getColorForPoint([x, y], coloredPoints)} onClick={() => onCellClick([x, y])} />
             ))}
           </div>
         ))}
