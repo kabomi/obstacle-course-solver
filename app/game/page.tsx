@@ -73,7 +73,7 @@ export default function GamePage() {
                 name="matrix-range"
                 className="flex"
                 min="2"
-                max="20"
+                max="100"
                 value={boardSize}
                 onChange={(e) => setBoardSize(parseInt(e.target.value))}
                 step="1" />

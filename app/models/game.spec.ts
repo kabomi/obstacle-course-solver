@@ -23,7 +23,7 @@ describe("Game: Obstacle course solver", () => {
     it.each`
     board                                 | resultSteps    |  testDescription | resultPath
     ${new Board([[StartCell, EmptyCell ], 
-                [EmptyCell, EndCell]])}   |  ${2}          | ${`for the simplest case`} |${[new Vector([0, 0], [1, 0], 1), new Vector([1, 0] , [1, 1], 1)]}
+                [EmptyCell, EndCell]])}   |  ${2}          | ${`for the simplest case`} |${[new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)]}
     ${new Board([[StartCell, EmptyCell ], 
                 [BoulderCell, EndCell]])} |  ${2}          | ${`with a Boulder cell`} |${[new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)]}
     ${new Board([[StartCell, EndCell ], 
@@ -33,7 +33,7 @@ describe("Game: Obstacle course solver", () => {
     ${new Board([[StartCell, EmptyCell ], 
                 [GravelCell, EndCell]])} |  ${2}          | ${`with a Gravel cell`} |${[new Vector([0, 0], [0, 1], 1), new Vector([0, 1] , [1, 1], 1)]}
     ${new Board([[StartCell, GravelCell ], 
-                [GravelCell, EndCell]])} |  ${3}          | ${`with a two Gravel cells`} |${[new Vector([0, 0], [1, 0], 2), new Vector([1, 0] , [1, 1], 1)]}
+                [GravelCell, EndCell]])} |  ${3}          | ${`with two Gravel cells`} |${[new Vector([0, 0], [0, 1], 2), new Vector([0, 1] , [1, 1], 1)]}
     `('should solve Board $testDescription in $resultSteps steps', ({board, resultSteps, resultPath}) => {
       const game = new Game(board);
 
