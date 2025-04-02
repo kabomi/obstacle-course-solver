@@ -1,8 +1,10 @@
-# Suse Observability Front-end Engineer Assessment
+# Obstacle Course Solver
 
-## Assignment
+This app is part of a technical assessment. It has been coded mostly following BDD approach.
 
-Your assignment is to create a **visual obstacle course solver**. The obstacle course game is played on a grid of cells. The object of the game is to calculate a route from the starting location to the target location, navigating the terrain in the grid. Each game starts with a blank grid and consists of two phases:
+## Description
+
+The obstacle course game is played on a grid of cells. The object of the game is to calculate a route from the starting location to the target location, navigating the terrain in the grid. Each game starts with a blank grid and consists of two phases:
 
 1. **Placement Phase**:  
    The player places the starting location, the target location, and a number of obstacles on cells on the grid.
@@ -26,11 +28,42 @@ The obstacles that can be placed are:
 ## Important Details
 
 - There is only **one** starting location and **one** target location per game.
-- If the solver is unable to calculate a route, it displays a message to that effect.
+- When the solver is unable to calculate a route, it displays "Unable to calculate Route".
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm run dev`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm run test`
+
+Launches the Jest test runner in the interactive watch mode.
+
+### `npm run test:ci`
+
+Launches the Jest test runner on a single run and collects code coverage.
+
+### `npm run lint`
+
+We are using eslint with prettier in order to avoid typical issues and to have a common coding-style.
+Feel free to configure your IDE prettier/eslint plugins to don't have the need to run this command.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles NextJS/React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
 
 ## Requirements
 
-- Develop the solution to the assignment using **React** and **TypeScript**.
-- Ensure your solution can be run standalone, either by:
-  - Running `npm start`, **or**
-  - Opening the `index.html` file in a browser.
+- Node Version >= 18.18.2
