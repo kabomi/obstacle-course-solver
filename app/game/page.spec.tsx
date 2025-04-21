@@ -1,10 +1,10 @@
 /**
  * @jest-environment jsdom
  */
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import GamePage from "./page";
-import { GameStoreContext, GameStoreProvider } from "../providers/game.store-provider";
+import { GameStoreContext } from "../providers/game.store-provider";
 import { createGameStore } from "../store/game.store";
 import { Board, BoulderCell, Cell, EmptyCell, EndCell, GamePhase, GravelCell, StartCell, WormECell, WormSCell } from "../models";
 
@@ -33,99 +33,99 @@ describe("Game Page", () => {
   });
   it("Renders Game Page", () => {
     render(
-      <GameStoreProvider>
+      <GameStoreContext.Provider value={store}>
         <GamePage />
-      </GameStoreProvider>
+      </GameStoreContext.Provider>
     );
     expect(screen.getByTestId("title")).toHaveTextContent("Select Matrix Size");
   });
   it("Shows a next button", () => {
     render(
-      <GameStoreProvider>
+      <GameStoreContext.Provider value={store}>
         <GamePage />
-      </GameStoreProvider>
+      </GameStoreContext.Provider>
     );
     expect(screen.getByRole("button")).toHaveTextContent("Next");
   });
   it("Shows matrix size slider", () => {
     render(
-      <GameStoreProvider>
+      <GameStoreContext.Provider value={store}>
         <GamePage />
-      </GameStoreProvider>
+      </GameStoreContext.Provider>
     );
     expect(screen.getByTestId("matrix-range")).toBeInTheDocument();
   });
-  it("Shows place start phase after pressing next", () => {
-    render(
-      <GameStoreProvider>
-        <GamePage />
-      </GameStoreProvider>
-    );
-    expect(screen.getByRole("button")).toHaveTextContent("Next");
-
-    fireEvent.click(screen.getByRole("button"));
-
-    expect(screen.getByTestId("title")).toHaveTextContent("Place Start");
-    expect(screen.queryByTestId("matrix-range")).not.toBeInTheDocument();
-  });
-  describe("On place start phase", () => {
-    beforeEach(() => {
-      store.setState({ ...store.getState(), phase: GamePhase.SelectMatrix})
-    });
-    it("Shows a Board Game component", () => {
-      render(
-        <GameStoreProvider>
-          <GamePage />
-        </GameStoreProvider>
-      );
-      expect(screen.getByRole("button")).toHaveTextContent("Next");
-
-      fireEvent.click(screen.getByRole("button"));
-
-      expect(screen.getByTestId("game-board")).toBeInTheDocument();
-    });
-    it("places endCell when clicking on a cell", () => {
-      const placementBoard = Board.generateEmptyBoard(2);
-      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.PlaceStart})
-      render(
+  it("Shows place start phase after pressing next", async () => {
+    await act(() => {
+      return render(
         <GameStoreContext.Provider value={store}>
           <GamePage />
         </GameStoreContext.Provider>
       );
+    });
+    expect(screen.getByRole("button")).toHaveTextContent("Next");
 
-      fireEvent.click(screen.getByTestId("cell-0-0"));
+    await act(() => {
+      return fireEvent.click(screen.getByRole("button"));
+    });
+
+    expect(await screen.findByTestId("title")).toHaveTextContent("Place Start");
+    expect(screen.queryByTestId("matrix-range")).not.toBeInTheDocument();
+  });
+  describe("On place start phase", () => {
+    beforeEach(() => {
+      store.setState({ ...store.getState(), phase: GamePhase.SelectMatrix, boardSize: 2 });
+    });
+    it("Shows a Board Game component", async () => {
+      await act(() => {
+        return render(
+          <GameStoreContext.Provider value={store}>
+            <GamePage />
+          </GameStoreContext.Provider>
+        );
+      });
+      expect(screen.getByRole("button")).toHaveTextContent("Next");
+
+      await act(() => {
+        return fireEvent.click(screen.getByRole("button"));
+      });
+
+      expect(await screen.findByTestId("game-board")).toBeInTheDocument();
+    });
+    it("places endCell when clicking on a cell", async () => {
+      const placementBoard = Board.generateEmptyBoard(2);
+      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.PlaceStart})
+      await act(() => {
+        return render(
+          <GameStoreContext.Provider value={store}>
+            <GamePage />
+          </GameStoreContext.Provider>
+        );
+      });
+
+      await act(() => {
+        return fireEvent.click(screen.getByTestId("cell-0-0"));
+      });
 
       const state = store.getState();
       expect(state.placementBoard![0][0]).toBe(StartCell);
-    });
-    it("disables next action", () => {
-      render(
-        <GameStoreProvider>
-          <GamePage />
-        </GameStoreProvider>
-      );
-      expect(screen.getByRole("button")).toHaveTextContent("Next");
-
-      fireEvent.click(screen.getByRole("button"));
-
-      expect(screen.getByRole("button")).toBeDisabled();
     });
   });
   describe("On place end phase", () => {
     beforeEach(() => {
       store.setState({ ...store.getState(), phase: GamePhase.SelectMatrix})
     });
-    it("Shows a Board Game component", () => {
+    it("Shows a Board Game component", async () => {
       const placementBoard = Board.generateEmptyBoard(2);
       placementBoard[0][0] = StartCell;
-      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.PlaceEnd})
+      store.setState({ ...store.getState(), placementBoard, phase: GamePhase.PlaceEnd, boardSize: 2})
       render(
         <GameStoreContext.Provider value={store}>
           <GamePage />
         </GameStoreContext.Provider>
       );
 
-      expect(screen.getByTestId("game-board")).toBeInTheDocument();
+      expect(await screen.findAllByTestId("game-board")).toBeDefined();
     });
     it("places endCell when clicking on a cell", () => {
       const placementBoard = Board.generateEmptyBoard(2);

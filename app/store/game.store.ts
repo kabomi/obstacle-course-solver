@@ -69,6 +69,7 @@ export const createGameStore = (
           const [startX, startY] = previousBoard.find(StartCell)[0];
           placementBoard.setCellAt([startX, startY], StartCell);
           placementBoard.setCellAt([x, y], EndCell);
+          state.endPoint = [x, y];
           break;
         case GamePhase.PlaceObstacles:
           const previousCell = previousBoard.getCellAt(x, y);
